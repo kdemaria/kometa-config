@@ -1,0 +1,300 @@
+## Plex and TMDb are the two connections which are required for the script to run
+plex:                                # Can be individually specified per library as well; REQUIRED for the script to run
+  url: http://kempfplex1:32400
+  token: <<plextoken>>
+  timeout: 60
+  db_cache: 40
+  clean_bundles: false
+  empty_trash: false
+  optimize: false
+  verify_ssl: false
+tmdb:
+  apikey: <<tmdbkey>>
+  cache_expiration: 60
+  language: en
+  region:
+libraries:                           # This is called out once within the config.yml file
+  Movies:                            # These are names of libraries in your Plex
+    remove_overlays: false           # Set this to true to remove all overlays
+    collection_files:
+    - default: basic                 # This is a file within Kometa's defaults folder
+    - default: imdb                  # This is a file within Kometa's defaults folder
+    - default: studio
+    - default: streaming
+    - default: franchises
+    - default: universes    # see the wiki for how to use local files, folders, URLs, or files from git
+    overlay_files:
+    - default: ribbon
+    - default: resolution
+    - default: audio_codec
+    # see the wiki for how to use local files, folders, URLs, or files from git
+  TV Shows:                                         # Must match a library name in your Plex
+    report_path: config/missing/TV_report.yml
+    remove_overlays: false                          # Set to true if you want to remove overlays
+    # reapply_overlays: true                         # If you are doing a lot of testing and changes like me, keep this to true to always reapply overlays
+    reset_overlays: tmdb                            # if you want to reset the poster to default poster from tmdb
+    collection_files:
+    - default: basic                 # This is a file within Kometa's defaults folder
+    - default: imdb                  # This is a file within Kometa's defaults folder
+    # see the wiki for how to use local files, folders, URLs, or files from git
+    overlay_files:
+    - default: ribbon
+    - default: resolution
+    - default: audio_codec
+# see the wiki for how to use local files, folders, URLs, or files from git
+#     template_variables:
+#       sep_style: gray                               # use the gray separators globally for this library
+#       collection_mode: hide                         # hide the collections
+#       language: en                                  # could be default(which is en), da, de, fr, pt-br or another lang code that we have translated
+#       placeholder_imdb_id: tt1190634                # The Boys (2019) placeholder id for the separators
+#     metadata_files:                                 # These files contain metadata: attributes
+# #     - git: bullmoose20/money_heist                  # Custom metadata file for Money Heist
+#     collection_files:                               # These files contain collections: and/or dynamic_collections attributes
+#     - default: based                                # collections based on a book, comic, story, video game
+#     # - file: config/metadata/overlay_label.yml       # Creates collection of all items with an Overlay label (Testing only)
+#     - default: aspect                               # Creates collections based on aspect ratio of media item
+#     - git: bullmoose20/tv_refresh                   # Tells plex to refresh media items added within the last 7 days
+#     - default: separator_award                      # An "index card"
+#     - default: pca                                  # People's Choice Awards
+#       template_variables:                           # based on when the award show started
+#         data:
+#           starting: first
+#     - default: choice                               # Critic's Choice Awards
+#       template_variables:                           # based on when the award show started
+#         data:
+#           starting: first
+#     - default: golden                               # Golden Globes Awards
+#       template_variables:                           # based on when the award show started
+#         data:
+#           starting: first
+#     - default: emmy                                 # Emmy Awards
+#       template_variables:                           # based on when the award show started
+#         data:
+#           starting: first
+#     - default: separator_chart                      # An "index card"
+#     - default: anilist                              # AniDB Charts (Popular, Trending, etc.)
+#     - default: imdb                                 # IMDb Charts (Popular, Trending, etc.)
+#     - default: myanimelist                          # MAL Charts (Popular, Trending, etc.)
+#     - default: other_chart                          # Other Charts (Popular, Trending, etc.)
+#     - default: tautulli                             # Tautulli Charts (Popular, Trending, etc.)
+#     - default: tmdb                                 # TMDb Charts (Popular, Trending, etc.)
+#     - default: trakt                                # Trakt Charts (Popular, Trending, etc.)
+#     - default: basic                                # Some basic chart collections based on recently released media in your library
+#     - default: collectionless                       # Collectionless collection to help Show/Hide Movies/Shows properly in your library
+#     # - file: /config/metadata/both/birthday          # Actor birthdays
+#     - default: actor
+#       template_variables:
+#         collection_section: '001'
+#         use_separator: false
+#         style: diiivoycolor
+#         name_format: 🎂 Anniversaire de <<key_name>>
+#         translation_key: birthday
+#         sort_by: audience_rating.desc
+#         title_format: <<key_name>>'s Birthday
+#         exclude:                                    # ever have some random person... you can exclude them if you want
+#         - Macy Nyman
+#         data:
+#           depth: 20
+#           limit: 100
+#         tmdb_birthday:
+#           this_month: true
+#     - default: actor                                # Actors
+#       template_variables:                           # bw, rainier, diiivoy, diiivoycolor, or orig style is used. depth and limit is set low, but sometimes I boost to 10, 150
+#         exclude:                                    # ever have some random person... you can exclude them if you want
+#         - Macy Nyman
+#         style: signature
+#         data:
+#           depth: 1
+#           limit: 15
+#     - default: audio_language                       # English, French, Arabic, German, etc. audio language
+#     - default: content_rating_nz                    # Choose content_rating_nz, content_rating_au, content_rating_uk, content_rating_us, content_rating_de, content_rating_mal, content_rating_cs, or all
+#     - default: content_rating_au                    # Choose content_rating_nz, content_rating_au, content_rating_uk, content_rating_us, content_rating_de, content_rating_mal, content_rating_cs, or all
+#     - default: content_rating_cs                    # Choose content_rating_nz, content_rating_au, content_rating_uk, content_rating_us, content_rating_de, content_rating_mal, content_rating_cs, or all
+#     - default: content_rating_de                    # Choose content_rating_nz, content_rating_au, content_rating_uk, content_rating_us, content_rating_de, content_rating_mal, content_rating_cs, or all
+#     - default: content_rating_us                    # Choose content_rating_nz, content_rating_au, content_rating_uk, content_rating_us, content_rating_de, content_rating_mal, content_rating_cs, or all
+#     - default: content_rating_uk                    # Choose content_rating_nz, content_rating_au, content_rating_uk, content_rating_us, content_rating_de, content_rating_mal, content_rating_cs, or all
+#     - default: content_rating_mal                   # Choose content_rating_mal for anime ratings
+#     - default: genre                                # Action, Comedy, Drama, etc.
+#     - default: resolution                           # 4K HDR, 1080P FHD, etc. with the standards style
+#       # template_variables:
+#         # style: standards
+#     - default: studio                               # DreamWorks Studios, Lucasfilm Ltd, etc.
+#     - default: subtitle_language                    # English, French, Arabic, German, etc. subtitles
+#     - default: year                                 # Year the media item was released starting from 1880 to current_year
+#       template_variables:
+#         data:
+#           starting: 1880
+#           ending: current_year
+#     - default: country                              # Country associated to the media item
+#       template_variables:
+#         style: color
+#     - default: region                               # Region associated to the media item
+#       template_variables:
+#         style: color
+#     - default: continent                            # Continent associated to the media item
+#       template_variables:
+#         style: color
+#     - default: decade                               # Decade the media item was released
+#     - git: bullmoose20/separator_franchise          # Separator for franchise
+#       template_variables:
+#         collection_section: '035'                   # Set to "035" to be right before universe. Should be the same here and below
+#     - default: franchise                            # https://kometa.wiki/en/latest/defaults/movie/franchise
+#       template_variables:
+#         collection_section: '035'                   # Set to "035" to be right before universe. Should be the same here and above
+#     - default: network                              # ABC, CBC, NBC, FOX, etc.
+#     - default: streaming                            # Streaming on Disney+, Netflix, etc.
+#     - default: universe
+  # Anime:
+  #   collection_files:
+  #     - default: basic               # This is a file within Kometa's defaults folder
+  #     - default: anilist             # This is a file within Kometa's defaults folder
+  #     # see the wiki for how to use local files, folders, URLs, or files from git
+  # Music:
+  #   collection_files:
+  #     - file: config/Music.yml       # This is a local file THAT YOU MIGHT CREATE
+playlist_files:
+- default: playlist                  # This is a file within Kometa's defaults folder
+  template_variables:
+    libraries: Movies, TV Shows      # list of libraries that you want the Kometa Defaults playlists to look at
+  # see the wiki for how to use local files, folders, URLs, or files from git
+settings:
+  run_order:
+  - operations
+  - metadata
+  - collections
+  - overlays
+  cache: true
+  cache_expiration: 60
+  # asset_directory:
+  # - config/assets
+  asset_folders: true
+  asset_depth: 0
+  create_asset_folders: true
+  prioritize_assets: false
+  dimensional_asset_rename: false
+  download_url_assets: false
+  show_missing_season_assets: false
+  show_missing_episode_assets: false
+  show_asset_not_needed: true
+  sync_mode: append
+  minimum_items: 1
+  default_collection_order: release
+  delete_below_minimum: true
+  delete_not_scheduled: false
+  run_again_delay: 2
+  missing_only_released: false
+  only_filter_missing: false
+  show_unmanaged: true
+  show_unconfigured: true
+  show_filtered: false
+  show_unfiltered: false
+  show_options: true
+  show_missing: true
+  show_missing_assets: true
+  save_report: false
+  tvdb_language: eng
+  ignore_ids:
+  ignore_imdb_ids:
+  item_refresh_delay: 0
+  playlist_sync_to_users:
+  playlist_exclude_users:
+  playlist_report: false
+  verify_ssl: true
+  custom_repo:
+  overlay_artwork_filetype: webp_lossy
+  overlay_artwork_quality: 90
+# webhooks:                            # Can be individually specified per library as well
+#   changes:
+#   delete:
+#   error:
+#   run_end:
+#   run_start:
+#   version:
+# tautulli:                            # Can be individually specified per library as well
+#   url: http://192.168.1.12:8181
+#   apikey: Enter Tautulli API Key
+# github:
+#   token: Enter GitHub Personal Access Token
+  asset_directory:
+omdb:
+  apikey: <<omdbkey>>
+  cache_expiration: 60
+# mdblist:
+#   apikey: Enter MDBList API Key
+#   cache_expiration: 60
+# notifiarr:
+#   apikey: Enter Notifiarr API Key
+# gotify:
+#   url: http://192.168.1.12:80
+#   token: Enter Gotify Token
+# ntfy:
+#   url: http://192.168.1.12:80
+#   token: Enter ntfy Access Token
+#   topic: Enter ntfy Topic
+# anidb:                               # Not required for AniDB builders unless you want mature content
+#   username: Enter AniDB Username
+#   password: Enter AniDB Password
+#   cache_expiration: 60
+#   client: Enter AniDB Client
+#   language: en
+#   version: 1
+radarr:                              # Can be individually specified per library as well
+  url: http://10.100.103.17:7878
+  token: <<radarrtoken>>
+  add_missing: false
+  add_existing: false
+  upgrade_existing: false
+  monitor_existing: false
+#   root_folder_path: S:/Movies
+  monitor: true
+  availability: announced
+  quality_profile: HD-1080p
+  tag:
+  search: false
+  radarr_path:
+  plex_path:
+  ignore_cache: false
+  root_folder_path:
+sonarr:                              # Can be individually specified per library as well
+  url: http://10.100.103.17:8989
+  token: <<sonarrtoken>>
+  add_missing: false
+  add_existing: false
+  upgrade_existing: false
+  monitor_existing: false
+#   root_folder_path: 'S: V Shows'
+  monitor: all
+  quality_profile: HD-1080p
+  language_profile: English
+  series_type: standard
+  season_folder: true
+  tag:
+  search: false
+  cutoff_search: false
+  sonarr_path:
+  plex_path:
+  ignore_cache: false
+# trakt:
+#   client_id: Enter Trakt Client ID
+#   client_secret: Enter Trakt Client Secret
+#   pin:
+#   authorization:
+#     # authorization section is autofilled by the script
+#     access_token:
+#     created_at:
+#     expires_in:
+#     refresh_token:
+#     scope: public
+#     token_type:
+# mal:
+#   client_id: Enter MyAnimeList Client ID
+#   client_secret: Enter MyAnimeList Client Secret
+#   cache_expiration: 60
+#   localhost_url:
+#   authorization:
+#     # authorization section is autofilled by the script
+#     access_token:
+#     expires_in:
+#     refresh_token:
+#     token_type:
+  root_folder_path:

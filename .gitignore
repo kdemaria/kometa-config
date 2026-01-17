@@ -1,0 +1,40 @@
+# Kometa Secrets and Sensitive Files
+.env
+
+# Kometa Runtime Files
+*.log
+logs/
+config/logs/
+
+# Kometa Cache
+cache/
+config/cache/
+
+# Kometa Assets (optional - uncomment if you don't want to track assets)
+# assets/
+# config/assets/
+
+# Kometa Reports
+config/missing/
+*.report.yml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+# OS Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.iml
