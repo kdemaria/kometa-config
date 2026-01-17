@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # Config sync service - pulls latest config from GitHub before other services start
+  config-sync:
+    image: alpine/git
+    container_name: kometa-config-sync
+    volumes:
+      - ./:/git
+    command: >
+      sh -c "
+        cd /git &&
+        git config --global --add safe.directory /git &&
+        git pull origin main || echo 'Git pull failed or no changes'
+      "
+    restart: "no"
+
+  # Kometa for kempfplex1
+  kometa-kempfplex1:
+    image: kometateam/kometa:latest
+    container_name: kometa-kempfplex1
+    depends_on:
+      config-sync:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    environment:
+      # Server-specific Plex URL (only thing that differs per server)
+      - KOMETA_PLEXURL=http://kempfplex1:32400
+
+      # All other secrets are shared (from .env file)
+      - KOMETA_PLEXTOKEN=${PLEX_TOKEN}
+      - KOMETA_TMDBKEY=${TMDB_KEY}
+      - KOMETA_OMDBKEY=${OMDB_KEY}
+      - KOMETA_RADARRTOKEN=${RADARR_TOKEN}
+      - KOMETA_SONARRTOKEN=${SONARR_TOKEN}
+    volumes:
+      # Shared config (read-only)
+      - ./config.yml:/config/config.yml:ro
+
+      # Server-specific writable directories
+      - kometa-kempfplex1-logs:/config/logs
+      - kometa-kempfplex1-cache:/config/cache
+    command: --run --read-only-config
+
+  # Kometa for kempfnas2
+  kometa-kempfnas2:
+    image: kometateam/kometa:latest
+    container_name: kometa-kempfnas2
+    depends_on:
+      config-sync:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    environment:
+      # Server-specific Plex URL (only thing that differs per server)
+      - KOMETA_PLEXURL=http://kempfnas2:32400
+
+      # All other secrets are shared (from .env file)
+      - KOMETA_PLEXTOKEN=${PLEX_TOKEN}
+      - KOMETA_TMDBKEY=${TMDB_KEY}
+      - KOMETA_OMDBKEY=${OMDB_KEY}
+      - KOMETA_RADARRTOKEN=${RADARR_TOKEN}
+      - KOMETA_SONARRTOKEN=${SONARR_TOKEN}
+    volumes:
+      # Shared config (read-only)
+      - ./config.yml:/config/config.yml:ro
+
+      # Server-specific writable directories
+      - kometa-kempfnas2-logs:/config/logs
+      - kometa-kempfnas2-cache:/config/cache
+    command: --run --read-only-config
+
+  # Kometa for DEMARIA-DT
+  kometa-demaria-dt:
+    image: kometateam/kometa:latest
+    container_name: kometa-demaria-dt
+    depends_on:
+      config-sync:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    environment:
+      # Server-specific Plex URL (only thing that differs per server)
+      - KOMETA_PLEXURL=http://demaria-dt:32400
+
+      # All other secrets are shared (from .env file)
+      - KOMETA_PLEXTOKEN=${PLEX_TOKEN}
+      - KOMETA_TMDBKEY=${TMDB_KEY}
+      - KOMETA_OMDBKEY=${OMDB_KEY}
+      - KOMETA_RADARRTOKEN=${RADARR_TOKEN}
+      - KOMETA_SONARRTOKEN=${SONARR_TOKEN}
+    volumes:
+      # Shared config (read-only)
+      - ./config.yml:/config/config.yml:ro
+
+      # Server-specific writable directories
+      - kometa-demaria-dt-logs:/config/logs
+      - kometa-demaria-dt-cache:/config/cache
+    command: --run --read-only-config
+
+# Named volumes for logs and cache (persists between container restarts)
+volumes:
+  kometa-kempfplex1-logs:
+  kometa-kempfplex1-cache:
+  kometa-kempfnas2-logs:
+  kometa-kempfnas2-cache:
+  kometa-demaria-dt-logs:
+  kometa-demaria-dt-cache:
