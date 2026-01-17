@@ -16,31 +16,143 @@ tmdb:
 libraries:                           # This is called out once within the config.yml file
   Movies:                            # These are names of libraries in your Plex
     remove_overlays: false           # Set this to true to remove all overlays
+
+    ## Collection Files - Define what collections to create
     collection_files:
-    - default: basic                 # This is a file within Kometa's defaults folder
-    - default: imdb                  # This is a file within Kometa's defaults folder
-    - default: studio
-    - default: streaming
-    - default: franchises
-    - default: universes    # see the wiki for how to use local files, folders, URLs, or files from git
+    # Basic & Chart Collections
+    - default: basic                 # Recently added, released, etc.
+    - default: imdb                  # IMDb Popular, Top 250, Lowest Rated
+    - default: tmdb                  # TMDb Popular, Trending, Top Rated
+
+    # Award Collections - Great for American cinema
+    - default: oscars                # Academy Awards (Best Picture winners, nominees)
+    - default: golden                # Golden Globe Awards
+      template_variables:
+        data:
+          starting: current_year-10  # Last 10 years of Golden Globes
+    - default: choice                # Critics Choice Awards
+      template_variables:
+        data:
+          starting: current_year-10  # Last 10 years
+
+    # Seasonal & Holiday Collections
+    - default: seasonal              # Christmas, Halloween, Valentine's Day, etc.
+
+    # Content-based Collections
+    - default: genre                 # Action, Comedy, Drama, etc.
+    - default: studio                # Disney, Warner Bros, Universal, etc.
+    - default: streaming             # Netflix, Disney+, HBO Max, Prime Video, etc.
+    - default: franchises            # Star Wars, MCU, Fast & Furious, etc.
+    - default: universes             # Marvel Cinematic Universe, DC Extended Universe
+
+    # Actor/Director Collections with prettier styles
+    - default: actor                 # Top actors in your library
+      template_variables:
+        style: diiivoycolor          # Use colorful poster style
+        data:
+          depth: 5                   # Search depth for actors
+          limit: 20                  # Top 20 actors
+    - default: director              # Top directors in your library
+      template_variables:
+        style: signature             # Professional signature style
+        data:
+          depth: 5
+          limit: 15                  # Top 15 directors
+
+    # Time-based Collections
+    - default: year                  # Collections by year
+      template_variables:
+        data:
+          starting: 1980             # Start from 1980
+          ending: current_year
+    - default: decade                # Collections by decade
+
+    # Content Rating Collections (US-focused)
+    - default: content_rating_us     # G, PG, PG-13, R, NC-17
+
+    ## Overlay Files - Visual badges on posters
     overlay_files:
-    - default: ribbon
-    - default: resolution
-    - default: audio_codec
-    # see the wiki for how to use local files, folders, URLs, or files from git
+    - default: ribbon                # IMDb Top 250, Oscar Winner, Rotten Tomatoes Certified Fresh
+    - default: ratings               # IMDb, Rotten Tomatoes, Metacritic ratings
+      template_variables:
+        rating1: critic              # Rotten Tomatoes Critics score
+        rating2: audience            # Rotten Tomatoes Audience score
+        rating3: imdb                # IMDb rating
+    - default: streaming             # Netflix, Disney+, HBO Max logos
+    - default: video_format          # 4K HDR, Dolby Vision, HDR10+
+    - default: audio_codec           # Dolby Atmos, DTS-X, TrueHD
+    - default: versions              # Extended Cut, Director's Cut, IMAX Enhanced
+    - default: mediastinger          # After-credits scene indicator (great for Marvel/superhero)
   TV Shows:                                         # Must match a library name in your Plex
     report_path: config/missing/TV_report.yml
     remove_overlays: false                          # Set to true if you want to remove overlays
     # reapply_overlays: true                         # If you are doing a lot of testing and changes like me, keep this to true to always reapply overlays
     reset_overlays: tmdb                            # if you want to reset the poster to default poster from tmdb
+
+    ## Collection Files - TV Show collections
     collection_files:
-    - default: basic                 # This is a file within Kometa's defaults folder
-    - default: imdb                  # This is a file within Kometa's defaults folder
-    # see the wiki for how to use local files, folders, URLs, or files from git
+    # Basic & Chart Collections
+    - default: basic                 # Recently added, aired, etc.
+    - default: imdb                  # IMDb Popular TV shows, Top Rated
+    - default: tmdb                  # TMDb Popular, Trending, Top Rated
+
+    # Award Collections - TV Awards
+    - default: emmy                  # Emmy Awards
+      template_variables:
+        data:
+          starting: current_year-10  # Last 10 years of Emmys
+    - default: golden                # Golden Globe TV Awards
+      template_variables:
+        data:
+          starting: current_year-10
+
+    # Seasonal & Holiday Collections
+    - default: seasonal              # Christmas specials, Halloween episodes
+
+    # Content-based Collections
+    - default: genre                 # Drama, Comedy, Sci-Fi, etc.
+    - default: network               # NBC, ABC, CBS, FOX, HBO, etc.
+    - default: streaming             # Netflix, Disney+, HBO Max, Prime Video, Hulu
+    - default: studio                # Production studios
+
+    # Actor Collections with prettier styles
+    - default: actor                 # Top TV actors
+      template_variables:
+        style: diiivoycolor          # Colorful poster style
+        data:
+          depth: 5
+          limit: 20
+
+    # Time-based Collections
+    - default: year                  # Shows by year
+      template_variables:
+        data:
+          starting: 1980
+          ending: current_year
+    - default: decade                # Shows by decade
+
+    # Content Rating Collections (US-focused)
+    - default: content_rating_us     # TV-Y, TV-PG, TV-14, TV-MA
+
+    # Show Status Collections
+    - default: status                # Airing, Returning, Canceled, Ended
+
+    ## Overlay Files - Visual badges on posters
     overlay_files:
-    - default: ribbon
-    - default: resolution
-    - default: audio_codec
+    - default: ribbon                # IMDb Top 250 TV, Emmy Winner badges
+    - default: ratings               # IMDb, Rotten Tomatoes ratings
+      template_variables:
+        rating1: critic              # Rotten Tomatoes Critics score
+        rating2: audience            # Rotten Tomatoes Audience score
+        rating3: imdb                # IMDb rating
+    - default: streaming             # Netflix, Disney+, HBO Max logos
+    - default: video_format          # 4K HDR, Dolby Vision for TV shows
+    - default: audio_codec           # Dolby Atmos, DTS-X
+    - default: versions              # Extended episodes, Director's Cut
+    - default: mediastinger          # Post-credits scenes
+    - default: episode_info          # Season/Episode info overlays
+      template_variables:
+        overlay_level: episode       # Apply to episodes
 # see the wiki for how to use local files, folders, URLs, or files from git
 #     template_variables:
 #       sep_style: gray                               # use the gray separators globally for this library
