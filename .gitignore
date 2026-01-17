@@ -1,5 +1,8 @@
 # Kometa Secrets and Sensitive Files
 .env
+.env.*
+!.env.*.example
+!.env.template
 
 # Kometa Runtime Files
 *.log

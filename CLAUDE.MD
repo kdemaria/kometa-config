@@ -107,12 +107,34 @@ Many default files support template variables for customization:
    - Set `remove_overlays: true` to strip all overlays
    - Use `reset_overlays: tmdb` to restore original posters
 
-## Deployment Notes
+## Deployment Architecture
 
-- Each Plex server runs its own Kometa container
-- Containers mount this shared configuration directory
-- Schedule runs via cron or Kometa's built-in scheduler
-- Monitor logs for API rate limits and errors
+This project uses a **shared config, per-server environment** model:
+
+### Single Shared Config
+- `config.yml` - Used by ALL servers (stored in git)
+- Contains all collection and overlay definitions
+- Read-only mounted in containers
+
+### Per-Server Customization
+Each server has its own:
+- `.env` file with server-specific values (Plex URL, token)
+- Container instance
+- Logs and cache directories
+
+### Environment Variables
+The config uses environment variable substitution:
+- `<<plexurl>>` → `KOMETA_PLEXURL` (unique per server)
+- `<<plextoken>>` → `KOMETA_PLEXTOKEN` (unique per server)
+- `<<tmdbkey>>` → `KOMETA_TMDBKEY` (shared across all servers)
+
+### Deployment Steps
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions on:
+- Synology Container Manager setup
+- Docker Compose deployment
+- Per-server .env file configuration
+- Volume mount structure
+- Scheduling and monitoring
 
 ## Troubleshooting
 

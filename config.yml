@@ -1,7 +1,8 @@
 ## Plex and TMDb are the two connections which are required for the script to run
+## This config supports multiple Plex servers via environment variables
 plex:                                # Can be individually specified per library as well; REQUIRED for the script to run
-  url: http://kempfplex1:32400
-  token: <<plextoken>>
+  url: <<plexurl>>                   # Set via KOMETA_PLEXURL per server
+  token: <<plextoken>>               # Set via KOMETA_PLEXTOKEN per server
   timeout: 60
   db_cache: 40
   clean_bundles: false
