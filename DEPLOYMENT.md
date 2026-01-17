@@ -46,9 +46,9 @@ This configuration supports **multiple Plex servers** using a single shared `con
    mkdir -p /volume1/docker/kometa/kempfplex1/{logs,cache}
    ```
 
-2. **Copy the appropriate .env example:**
+2. **Copy the appropriate env template:**
    ```bash
-   cp .env.kempfplex1.example /volume1/docker/kometa/kempfplex1/.env
+   cp env.kempfplex1.example /volume1/docker/kometa/kempfplex1/.env
    ```
 
 3. **Edit the .env file with actual values:**
