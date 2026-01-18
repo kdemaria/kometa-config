@@ -1,6 +1,11 @@
 #!/bin/bash
 # Generate docker-compose.yml from servers.txt
 
+# Make docker-compose.yml writable if it exists
+if [ -f docker-compose.yml ]; then
+  chmod +w docker-compose.yml 2>/dev/null || true
+fi
+
 cat > docker-compose.yml << 'HEADER'
 version: '3.8'
 
