@@ -53,6 +53,8 @@ Before starting, ensure your Synology NAS has:
 
 ## Setup Instructions
 
+**Note:** This project uses a dynamic server configuration system. All Plex servers are defined in `servers.txt`, and the `docker-compose.yml` file is generated from it. See [SERVERS.md](SERVERS.md) for details on adding/removing servers.
+
 ### 1. Clone Repository on Synology
 
 SSH into your Synology:

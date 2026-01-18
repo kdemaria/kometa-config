@@ -38,6 +38,7 @@ See [DOCKER-COMPOSE.md](DOCKER-COMPOSE.md) for complete Docker Compose deploymen
 ## Documentation
 
 - [DOCKER-COMPOSE.md](DOCKER-COMPOSE.md) - Docker Compose deployment (recommended)
+- [SERVERS.md](SERVERS.md) - Managing your Plex servers (add/remove/modify)
 - [DEPLOYMENT.md](DEPLOYMENT.md) - Alternative deployment methods
 - [CLAUDE.MD](CLAUDE.MD) - Project documentation for AI assistants
 

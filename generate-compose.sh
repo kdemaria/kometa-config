@@ -1,0 +1,102 @@
+#!/bin/bash
+# Generate docker-compose.yml from servers.txt
+
+cat > docker-compose.yml << 'HEADER'
+version: '3.8'
+
+services:
+  # Config sync service - pulls latest config from GitHub before other services start
+  config-sync:
+    image: alpine/git
+    container_name: kometa-config-sync
+    volumes:
+      - ./:/git
+    command: >
+      sh -c "
+        cd /git &&
+        git config --global --add safe.directory /git &&
+        git pull origin main || echo 'Git pull failed or no changes'
+      "
+    restart: "no"
+
+HEADER
+
+# Read servers.txt and generate service blocks
+while IFS='|' read -r container_name plex_url display_name || [ -n "$container_name" ]; do
+  # Skip empty lines and comments
+  [[ -z "$container_name" || "$container_name" =~ ^[[:space:]]*# ]] && continue
+
+  # Trim whitespace
+  container_name=$(echo "$container_name" | xargs)
+  plex_url=$(echo "$plex_url" | xargs)
+  display_name=$(echo "$display_name" | xargs)
+
+  # Extract server name for volume names (remove kometa- prefix)
+  server_name="${container_name#kometa-}"
+
+  cat >> docker-compose.yml << SERVICE
+
+  # Kometa for ${display_name}
+  ${container_name}:
+    image: kometateam/kometa:latest
+    container_name: ${container_name}
+    depends_on:
+      config-sync:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    environment:
+      # Server-specific Plex URL (only thing that differs per server)
+      - KOMETA_PLEXURL=${plex_url}
+
+      # All other secrets are shared (from .env file)
+      - KOMETA_PLEXTOKEN=\${PLEX_TOKEN}
+      - KOMETA_TMDBKEY=\${TMDB_KEY}
+      - KOMETA_OMDBKEY=\${OMDB_KEY}
+      - KOMETA_RADARRTOKEN=\${RADARR_TOKEN}
+      - KOMETA_SONARRTOKEN=\${SONARR_TOKEN}
+    volumes:
+      # Shared config (read-only)
+      - ./config.yml:/config/config.yml:ro
+
+      # Server-specific writable directories
+      - ${server_name}-logs:/config/logs
+      - ${server_name}-cache:/config/cache
+    command: --run --read-only-config
+SERVICE
+
+done < servers.txt
+
+# Generate volumes section
+cat >> docker-compose.yml << 'VOLUMES_HEADER'
+
+# Named volumes for logs and cache (persists between container restarts)
+volumes:
+VOLUMES_HEADER
+
+# Read servers.txt again for volume definitions
+while IFS='|' read -r container_name plex_url display_name || [ -n "$container_name" ]; do
+  # Skip empty lines and comments
+  [[ -z "$container_name" || "$container_name" =~ ^[[:space:]]*# ]] && continue
+
+  # Trim whitespace
+  container_name=$(echo "$container_name" | xargs)
+
+  # Extract server name for volume names
+  server_name="${container_name#kometa-}"
+
+  cat >> docker-compose.yml << VOLUME
+  ${server_name}-logs:
+  ${server_name}-cache:
+VOLUME
+
+done < servers.txt
+
+echo "✅ docker-compose.yml generated successfully from servers.txt"
+echo ""
+echo "Server configuration:"
+grep -v '^#' servers.txt | grep -v '^[[:space:]]*$' | while IFS='|' read -r container_name plex_url display_name; do
+  container_name=$(echo "$container_name" | xargs)
+  plex_url=$(echo "$plex_url" | xargs)
+  display_name=$(echo "$display_name" | xargs)
+  echo "  - ${display_name}: ${plex_url}"
+done
