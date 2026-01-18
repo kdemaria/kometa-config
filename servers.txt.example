@@ -1,0 +1,10 @@
+# Kometa Server List
+# Format: CONTAINER_NAME|PLEX_URL|DISPLAY_NAME
+# One server per line, lines starting with # are ignored
+#
+# Copy this file to servers.txt and fill in your actual server details
+# servers.txt is gitignored to protect your internal IPs and server info
+
+kometa-server1|http://YOUR_PLEX_IP:32400|Server1
+kometa-server2|http://YOUR_PLEX_IP:32400|Server2
+kometa-server3|http://YOUR_PLEX_IP:32400|Server3

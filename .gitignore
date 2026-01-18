@@ -1,6 +1,7 @@
 # Kometa Secrets and Sensitive Files
 .env
 .env.*
+servers.txt
 
 # Kometa Runtime Files
 *.log
