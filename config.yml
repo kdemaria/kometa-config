@@ -41,9 +41,8 @@ libraries:                           # This is called out once within the config
 
     # Content-based Collections
     - default: genre                 # Action, Comedy, Drama, etc.
-    - default: studio                # Disney, Warner Bros, Universal, etc.
     - default: streaming             # Netflix, Disney+, HBO Max, Prime Video, etc.
-    - default: franchises            # Star Wars, MCU, Fast & Furious, etc.
+    - default: franchises            # Star Wars, MCU, Fast & Furious, Divergent, Allegiant, etc.
     - default: universes             # Marvel Cinematic Universe, DC Extended Universe
 
     # Actor/Director Collections with prettier styles
@@ -113,7 +112,6 @@ libraries:                           # This is called out once within the config
     - default: genre                 # Drama, Comedy, Sci-Fi, etc.
     - default: network               # NBC, ABC, CBS, FOX, HBO, etc.
     - default: streaming             # Netflix, Disney+, HBO Max, Prime Video, Hulu
-    - default: studio                # Production studios
 
     # Actor Collections with prettier styles
     - default: actor                 # Top TV actors
