@@ -1,9 +1,18 @@
 #!/bin/bash
 # Generate docker-compose.yml from servers.txt
 
-# Make docker-compose.yml writable if it exists
-if [ -f docker-compose.yml ]; then
-  chmod +w docker-compose.yml 2>/dev/null || true
+# Check if we need sudo for file operations
+SUDO=""
+if [ -f docker-compose.yml ] && [ ! -w docker-compose.yml ]; then
+  echo "docker-compose.yml is read-only. Attempting to make it writable..."
+  if ! chmod +w docker-compose.yml 2>/dev/null; then
+    echo "Need sudo permissions to modify docker-compose.yml"
+    SUDO="sudo"
+    $SUDO chmod +w docker-compose.yml || {
+      echo "Error: Cannot make docker-compose.yml writable even with sudo"
+      exit 1
+    }
+  fi
 fi
 
 cat > docker-compose.yml << 'HEADER'
