@@ -21,12 +21,13 @@ version: '3.8'
 services:
   # Config sync service - pulls latest config from GitHub before other services start
   config-sync:
-    image: alpine/git
+    image: alpine:latest
     container_name: kometa-config-sync
     volumes:
       - ./:/git
     command: >
       sh -c "
+        apk add --no-cache git &&
         cd /git &&
         git config --global --add safe.directory /git &&
         git pull origin main || echo 'Git pull failed or no changes'
