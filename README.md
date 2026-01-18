@@ -17,6 +17,13 @@ cd kometa-config
 cp env.compose.example .env
 nano .env  # Fill in your tokens
 
+# Create server list
+cp servers.txt.example servers.txt
+nano servers.txt  # Fill in your Plex server URLs
+
+# Generate docker-compose.yml
+bash generate-compose.sh
+
 # Start all containers
 docker-compose up -d
 ```
