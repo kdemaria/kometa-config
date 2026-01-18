@@ -293,7 +293,7 @@ settings:
   minimum_items: 1
   default_collection_order: release
   delete_below_minimum: true
-  delete_not_scheduled: false
+  delete_not_scheduled: true
   run_again_delay: 2
   missing_only_released: false
   only_filter_missing: false
