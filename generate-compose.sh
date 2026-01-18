@@ -59,6 +59,8 @@ while IFS='|' read -r container_name plex_url display_name || [ -n "$container_n
       config-sync:
         condition: service_completed_successfully
     restart: unless-stopped
+    dns:
+      - 10.100.103.1
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
