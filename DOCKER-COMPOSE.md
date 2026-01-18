@@ -88,19 +88,60 @@ Fill in these values (all shared across servers):
 - `OMDB_KEY` - Your OMDb API key
 - `RADARR_TOKEN` - Your Radarr token (optional)
 - `SONARR_TOKEN` - Your Sonarr token (optional)
+- `SHARED_METADATA_PATH` - Path to shared metadata directory (optional, see below)
 
 **Important:** The `.env` file is gitignored and will never be committed.
 
-### 3. Verify Plex URLs
+#### Optional: Enable Shared Metadata
 
-Check the Plex URLs in `docker-compose.yml` match your servers:
+By default, each Kometa instance uses its own internal metadata storage. You can optionally configure all instances to share a centralized metadata directory on your NAS.
 
-```yaml
-environment:
-  - KOMETA_PLEXURL=http://kempfplex1:32400  # Verify this matches your server
+**To enable shared metadata:**
+
+1. Create the shared metadata directory on your NAS:
+   ```bash
+   mkdir -p /volume1/demaria_ops/metadata
+   ```
+
+2. Set the path in your `.env` file:
+   ```bash
+   SHARED_METADATA_PATH=/volume1/demaria_ops/metadata
+   ```
+
+3. Regenerate docker-compose.yml (see step 3a below)
+
+**Benefits:**
+- All servers share the same custom assets (posters, backgrounds)
+- Custom metadata files are centralized
+- Easier to manage assets across multiple servers
+- Reduces storage duplication
+
+**To disable:** Leave `SHARED_METADATA_PATH` empty or remove it from `.env`
+
+### 3. Configure Your Servers
+
+Edit `servers.txt` to define your Plex servers:
+
+```bash
+cp servers.txt.example servers.txt
+nano servers.txt
 ```
 
-If your Plex servers use different hostnames or IPs, update them in the docker-compose.yml file.
+See [SERVERS.md](SERVERS.md) for details on the server configuration format.
+
+### 3a. Generate docker-compose.yml
+
+Run the generation script to create `docker-compose.yml` from your server list:
+
+```bash
+bash generate-compose.sh
+```
+
+This will:
+- Read your servers from `servers.txt`
+- Load configuration from `.env` (including `SHARED_METADATA_PATH` if set)
+- Generate `docker-compose.yml` with the appropriate volume mounts
+- Display a summary of your configuration
 
 ### 4. Start All Containers
 
@@ -378,6 +419,63 @@ If you get "git: command not found":
 
 ---
 
+## Managing Shared Metadata
+
+If you've enabled shared metadata via `SHARED_METADATA_PATH`, all Kometa instances will use the same metadata directory.
+
+### Directory Structure
+
+```
+/volume1/demaria_ops/metadata/
+├── assets/                        # Shared poster/background images
+│   ├── Movies/
+│   ├── TV Shows/
+│   └── Collections/
+├── collections/                   # Custom collection definitions
+├── overlays/                      # Overlay definitions
+└── custom/                        # Custom metadata files
+```
+
+### Adding Custom Assets
+
+1. **Place images in the assets directory:**
+   ```bash
+   # Example: Custom poster for a movie
+   /volume1/demaria_ops/metadata/assets/Movies/The Matrix (1999)/poster.jpg
+   ```
+
+2. **Kometa will automatically detect and use them** when it runs
+
+### Updating Metadata Files
+
+All servers read from the same `/config/metadata` directory (mounted from `SHARED_METADATA_PATH`):
+
+```bash
+# Edit a custom metadata file
+nano /volume1/demaria_ops/metadata/custom/my-collection.yml
+
+# Restart containers to apply changes
+cd /volume1/docker/kometa/kometa-config
+docker-compose restart
+```
+
+### Disabling Shared Metadata
+
+To switch back to individual metadata storage:
+
+1. Remove or empty `SHARED_METADATA_PATH` in `.env`
+2. Regenerate docker-compose.yml:
+   ```bash
+   bash generate-compose.sh
+   ```
+3. Restart containers:
+   ```bash
+   docker-compose down
+   docker-compose up -d
+   ```
+
+---
+
 ## File Structure
 
 ```
@@ -386,12 +484,22 @@ If you get "git: command not found":
 │   ├── .git/                      # Git repository
 │   ├── .env                       # Your secrets (gitignored)
 │   ├── config.yml                 # Shared Kometa config (from GitHub)
-│   ├── docker-compose.yml         # Container definitions
+│   ├── docker-compose.yml         # Generated container definitions
+│   ├── servers.txt                # Server list (gitignored)
+│   ├── generate-compose.sh        # Generates docker-compose.yml
 │   ├── env.compose.example        # Example secrets file
+│   ├── servers.txt.example        # Example server list
 │   └── README.md                  # Documentation
 ├── kempfplex1/                    # (Optional) Server-specific files
 ├── kempfnas2/                     # (Optional) Server-specific files
 └── demaria-dt/                    # (Optional) Server-specific files
+
+/volume1/demaria_ops/              # (Optional) Shared metadata storage
+└── metadata/                      # Shared across all Kometa instances
+    ├── assets/
+    ├── collections/
+    ├── overlays/
+    └── custom/
 ```
 
 ---

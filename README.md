@@ -54,6 +54,7 @@ See [DOCKER-COMPOSE.md](DOCKER-COMPOSE.md) for complete Docker Compose deploymen
 ✅ **Multi-server support** - Single config, multiple Plex instances
 ✅ **Auto-sync from GitHub** - Always uses latest config
 ✅ **Shared secrets** - One .env file for all servers
+✅ **Shared metadata (optional)** - Centralized assets and custom metadata
 ✅ **Beautiful collections** - Oscar winners, franchises, genres, etc.
 ✅ **Modern overlays** - 4K HDR, Dolby Vision, ratings, streaming logos
 ✅ **Isolated logs/cache** - Per-server Docker volumes

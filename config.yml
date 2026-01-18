@@ -328,6 +328,7 @@ settings:
 # github:
 #   token: Enter GitHub Personal Access Token
   asset_directory:
+  - config/metadata/assets
 omdb:
   apikey: <<omdbkey>>
   cache_expiration: 60

@@ -15,6 +15,11 @@ if [ -f docker-compose.yml ] && [ ! -w docker-compose.yml ]; then
   fi
 fi
 
+# Load environment variables from .env if it exists
+if [ -f .env ]; then
+  source .env
+fi
+
 cat > docker-compose.yml << 'HEADER'
 version: '3.8'
 
@@ -100,8 +105,20 @@ SERVICE
       # Server-specific writable directories
       - ${server_name}-logs:/config/logs
       - ${server_name}-cache:/config/cache
-    command: --run --read-only-config
 SERVICE_CONT
+
+  # Add shared metadata directory if SHARED_METADATA_PATH is set
+  if [ -n "$SHARED_METADATA_PATH" ]; then
+    cat >> docker-compose.yml << METADATA_VOLUME
+
+      # Shared metadata directory (for assets, custom metadata, etc.)
+      - ${SHARED_METADATA_PATH}:/config/metadata
+METADATA_VOLUME
+  fi
+
+  cat >> docker-compose.yml << COMMAND
+    command: --run --read-only-config
+COMMAND
 
 done < servers.txt
 
@@ -139,3 +156,12 @@ grep -v '^#' servers.txt | grep -v '^[[:space:]]*$' | while IFS='|' read -r cont
   display_name=$(echo "$display_name" | xargs)
   echo "  - ${display_name}: ${plex_url}"
 done
+
+echo ""
+if [ -n "$SHARED_METADATA_PATH" ]; then
+  echo "📁 Shared metadata enabled: ${SHARED_METADATA_PATH}"
+  echo "   All servers will use the same metadata directory at /config/metadata"
+else
+  echo "📁 Shared metadata disabled (no SHARED_METADATA_PATH set in .env)"
+  echo "   Each server uses its own internal metadata storage"
+fi
