@@ -28,7 +28,7 @@ services:
     network_mode: host
     environment:
       # Server-specific Plex URL (only thing that differs per server)
-      - KOMETA_PLEXURL=http://10.100.103.17:32400
+      - KOMETA_PLEXURL=http://127.0.0.1:32400
 
       # All other secrets are shared (from .env file)
       - KOMETA_PLEXTOKEN=${PLEX_TOKEN}
