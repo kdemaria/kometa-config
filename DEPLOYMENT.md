@@ -1,210 +1,164 @@
 # Kometa Multi-Server Deployment Guide
 
+## Recommended Deployment
+
+**For the simplest deployment, use Docker Compose.** See [DOCKER-COMPOSE.md](DOCKER-COMPOSE.md) for the complete guide.
+
+This document covers alternative deployment methods for advanced users.
+
+---
+
 ## Architecture Overview
 
-This configuration supports **multiple Plex servers** using a single shared `config.yml` file. Each server gets its own container with a unique `.env` file containing server-specific values.
+This configuration supports **multiple Plex servers** using a single shared `config.yml` file.
 
-### What's Shared:
+### What's Shared Across All Servers:
 - `config.yml` - Collection and overlay definitions
+- Plex token (same account)
 - TMDb API key
 - OMDb API key
-- Collection/overlay preferences
+- Radarr/Sonarr tokens
 
 ### What's Unique Per Server:
-- Plex URL
-- Plex token
-- (Optional) Radarr/Sonarr URLs and tokens if different per server
+- Plex URL only (e.g., `http://kempfplex1:32400`)
 
-## Deployment Options
+---
 
-### Option 1: Synology Container Manager (Recommended)
+## Alternative Deployment Methods
 
-#### Directory Structure on Synology:
-```
-/volume1/docker/kometa/
-├── config/                    # Shared config directory
-│   ├── config.yml            # Shared configuration (read-only)
-│   └── assets/               # Shared assets (optional)
-├── kempfplex1/
-│   ├── .env                  # Server-specific environment variables
-│   ├── logs/                 # Server-specific logs
-│   └── cache/                # Server-specific cache
-├── server2/
-│   ├── .env
-│   ├── logs/
-│   └── cache/
-└── server3/
-    ├── .env
-    ├── logs/
-    └── cache/
-```
+### Option 1: Synology Container Manager (Manual Setup)
 
-#### Setup Steps for Each Server:
+**Note:** This is more complex than using Docker Compose. Consider using [DOCKER-COMPOSE.md](DOCKER-COMPOSE.md) instead.
 
-1. **Create server-specific directory:**
+#### Setup Steps:
+
+1. **Clone repository on Synology:**
    ```bash
-   mkdir -p /volume1/docker/kometa/kempfplex1/{logs,cache}
+   cd /volume1/docker
+   git clone https://github.com/kdemaria/kometa-config.git
    ```
 
-2. **Copy the appropriate env template:**
+2. **Create a shared .env file:**
    ```bash
-   cp env.kempfplex1.example /volume1/docker/kometa/kempfplex1/.env
+   cd kometa-config
+   cp env.compose.example .env
+   nano .env
    ```
 
-3. **Edit the .env file with actual values:**
-   ```bash
-   nano /volume1/docker/kometa/kempfplex1/.env
-   ```
-   Fill in:
-   - `KOMETA_PLEXURL` - Your Plex server URL
-   - `KOMETA_PLEXTOKEN` - Your Plex token
-   - `KOMETA_TMDBKEY` - TMDb API key (same for all servers)
-   - `KOMETA_OMDBKEY` - OMDb API key (same for all servers)
+   Fill in all your secrets:
+   - `PLEX_TOKEN` - Your Plex token (shared across all servers)
+   - `TMDB_KEY` - TMDb API key
+   - `OMDB_KEY` - OMDb API key
+   - `RADARR_TOKEN` - Radarr token
+   - `SONARR_TOKEN` - Sonarr token
 
-4. **In Synology Container Manager:**
-   - Click "Image" → Search "kometateam/kometa" → Download
-   - Click "Container" → "Create"
-   - Select the `kometateam/kometa` image
-   - Click "Advanced Settings"
+3. **In Synology Container Manager, for each server:**
 
-5. **Configure Volume Mounts:**
+   **Container Settings:**
+   - Image: `kometateam/kometa:latest`
+   - Container Name: `kometa-kempfplex1` (or appropriate server name)
+   - Restart Policy: "Always" or "Unless stopped"
+
+   **Volume Mounts:**
    | Container Path | Host Path | Mode |
    |----------------|-----------|------|
-   | `/config` | `/volume1/docker/kometa/config` | Read-only |
-   | `/config/.env` | `/volume1/docker/kometa/kempfplex1/.env` | Read/Write |
-   | `/config/logs` | `/volume1/docker/kometa/kempfplex1/logs` | Read/Write |
-   | `/config/cache` | `/volume1/docker/kometa/kempfplex1/cache` | Read/Write |
+   | `/config/config.yml` | `/volume1/docker/kometa-config/config.yml` | Read-only |
+   | `/config/.env` | `/volume1/docker/kometa-config/.env` | Read-only |
+   | `/config/logs` | `/volume1/docker/kometa-logs/kempfplex1` | Read/Write |
+   | `/config/cache` | `/volume1/docker/kometa-cache/kempfplex1` | Read/Write |
 
-6. **Configure Environment (if needed):**
-   You can also pass environment variables directly in Container Manager instead of using .env file:
-   - Add each `KOMETA_*` variable from your .env file
-   - This is optional if you're using the .env file mount
+   **Environment Variables:**
+   - `KOMETA_PLEXURL=http://kempfplex1:32400` (change for each server)
 
-7. **Set Container Name:**
-   - Name: `kometa-kempfplex1`
-
-8. **Configure Restart Policy:**
-   - Set to "Always" or "Unless stopped"
-
-9. **Set Run Command (optional):**
+   **Command:**
    ```
    --run --read-only-config
    ```
-   The `--read-only-config` flag prevents Kometa from modifying the shared config.yml
 
-10. **Apply and Start Container**
+4. **Repeat for each server**, changing only:
+   - Container name (`kometa-kempfnas2`, `kometa-demaria-dt`)
+   - `KOMETA_PLEXURL` environment variable
+   - Log/cache paths
 
-#### Quick Container Manager Setup (Alternative - Direct Env Vars):
+---
 
-If you prefer to use Container Manager's environment variable UI instead of .env files:
-
-**Volume Mounts:**
-- `/config` → `/volume1/docker/kometa/config` (Read-only)
-- `/config/logs` → `/volume1/docker/kometa/kempfplex1/logs` (Read/Write)
-- `/config/cache` → `/volume1/docker/kometa/kempfplex1/cache` (Read/Write)
-
-**Environment Variables (add in Container Manager UI):**
-```
-KOMETA_SERVERNAME=kempfplex1
-KOMETA_PLEXURL=http://kempfplex1:32400
-KOMETA_PLEXTOKEN=your_token_here
-KOMETA_TMDBKEY=your_tmdb_key
-KOMETA_OMDBKEY=your_omdb_key
-KOMETA_RADARRTOKEN=your_radarr_token
-KOMETA_SONARRTOKEN=your_sonarr_token
-```
-
-### Option 2: Docker Compose
-
-Create a `docker-compose.yml` for each server:
-
-```yaml
-version: '3.8'
-
-services:
-  kometa-kempfplex1:
-    image: kometateam/kometa:latest
-    container_name: kometa-kempfplex1
-    restart: unless-stopped
-    env_file:
-      - ./kempfplex1/.env
-    volumes:
-      # Shared config (read-only)
-      - ./config:/config:ro
-      # Server-specific writeable directories
-      - ./kempfplex1/logs:/config/logs
-      - ./kempfplex1/cache:/config/cache
-    command: --run --read-only-config
-
-  kometa-server2:
-    image: kometateam/kometa:latest
-    container_name: kometa-server2
-    restart: unless-stopped
-    env_file:
-      - ./server2/.env
-    volumes:
-      - ./config:/config:ro
-      - ./server2/logs:/config/logs
-      - ./server2/cache:/config/cache
-    command: --run --read-only-config
-```
-
-Run with:
-```bash
-docker-compose up -d
-```
-
-### Option 3: Individual Docker Run Commands
+### Option 2: Individual Docker Run Commands
 
 **For kempfplex1:**
 ```bash
 docker run -d \
   --name kometa-kempfplex1 \
   --restart unless-stopped \
-  --env-file /volume1/docker/kometa/kempfplex1/.env \
-  -v /volume1/docker/kometa/config:/config:ro \
-  -v /volume1/docker/kometa/kempfplex1/logs:/config/logs \
-  -v /volume1/docker/kometa/kempfplex1/cache:/config/cache \
+  --env-file /volume1/docker/kometa-config/.env \
+  -e KOMETA_PLEXURL=http://kempfplex1:32400 \
+  -v /volume1/docker/kometa-config/config.yml:/config/config.yml:ro \
+  -v kometa-kempfplex1-logs:/config/logs \
+  -v kometa-kempfplex1-cache:/config/cache \
   kometateam/kometa:latest \
   --run --read-only-config
 ```
 
-**For server2:**
+**For kempfnas2:**
 ```bash
 docker run -d \
-  --name kometa-server2 \
+  --name kometa-kempfnas2 \
   --restart unless-stopped \
-  --env-file /volume1/docker/kometa/server2/.env \
-  -v /volume1/docker/kometa/config:/config:ro \
-  -v /volume1/docker/kometa/server2/logs:/config/logs \
-  -v /volume1/docker/kometa/server2/cache:/config/cache \
+  --env-file /volume1/docker/kometa-config/.env \
+  -e KOMETA_PLEXURL=http://kempfnas2:32400 \
+  -v /volume1/docker/kometa-config/config.yml:/config/config.yml:ro \
+  -v kometa-kempfnas2-logs:/config/logs \
+  -v kometa-kempfnas2-cache:/config/cache \
   kometateam/kometa:latest \
   --run --read-only-config
 ```
+
+**For DEMARIA-DT:**
+```bash
+docker run -d \
+  --name kometa-demaria-dt \
+  --restart unless-stopped \
+  --env-file /volume1/docker/kometa-config/.env \
+  -e KOMETA_PLEXURL=http://demaria-dt:32400 \
+  -v /volume1/docker/kometa-config/config.yml:/config/config.yml:ro \
+  -v kometa-demaria-dt-logs:/config/logs \
+  -v kometa-demaria-dt-cache:/config/cache \
+  kometateam/kometa:latest \
+  --run --read-only-config
+```
+
+---
 
 ## Getting Your Plex Token
 
 To find your Plex token:
-1. Open a Plex Web App
+
+**Method 1: Via Plex Web**
+1. Open Plex Web App
 2. Open any media item
 3. Click "Get Info" → "View XML"
 4. Look at the URL: `...?X-Plex-Token=YOURTOKEN`
 
-Or use this method:
-1. SSH into your Plex server
-2. Run: `cat "$(find ~/.config/Plex\ Media\ Server/Preferences.xml)" | grep -oP 'PlexOnlineToken="\K[^"]+'`
+**Method 2: Via SSH** (if you have access to the Plex server)
+```bash
+cat "$(find ~/.config/Plex\ Media\ Server/Preferences.xml 2>/dev/null)" | grep -oP 'PlexOnlineToken="\K[^"]+'
+```
+
+**Method 3: Via Kometa Documentation**
+https://kometa.wiki/en/latest/config/plex/#getting-your-plex-token
+
+---
 
 ## Scheduling Kometa Runs
 
 ### Option A: Use Kometa's Built-in Scheduler
 
-Edit your `.env` file and add:
-```
+Add to your `.env` file:
+```bash
 KOMETA_TIME=03:00  # Run at 3 AM daily
 ```
 
-Or run continuously with interval:
-```
+Or run continuously:
+```bash
 KOMETA_RUN=true
 ```
 
@@ -215,44 +169,87 @@ KOMETA_RUN=true
 3. Schedule: Daily at 3:00 AM
 4. User-defined script:
    ```bash
-   docker start kometa-kempfplex1
+   docker restart kometa-kempfplex1 kometa-kempfnas2 kometa-demaria-dt
    ```
 
-### Option C: Cron (if using Docker Compose)
+### Option C: Cron
 
 Add to crontab:
 ```
-0 3 * * * docker-compose -f /volume1/docker/kometa/docker-compose.yml up kometa-kempfplex1
+0 3 * * * docker restart kometa-kempfplex1 kometa-kempfnas2 kometa-demaria-dt
 ```
+
+---
+
+## Updating Configuration
+
+### Update config.yml
+
+1. Make changes to config.yml locally
+2. Commit and push to GitHub:
+   ```bash
+   git add config.yml
+   git commit -m "Update configuration"
+   git push
+   ```
+
+3. On Synology, pull changes:
+   ```bash
+   cd /volume1/docker/kometa-config
+   git pull
+   ```
+
+4. Restart containers:
+   ```bash
+   docker restart kometa-kempfplex1 kometa-kempfnas2 kometa-demaria-dt
+   ```
+
+### Update secrets (.env)
+
+1. Edit the `.env` file:
+   ```bash
+   nano /volume1/docker/kometa-config/.env
+   ```
+
+2. Restart containers:
+   ```bash
+   docker restart kometa-kempfplex1 kometa-kempfnas2 kometa-demaria-dt
+   ```
+
+---
 
 ## Monitoring and Logs
 
 ### View logs:
-```bash
-# Container Manager: Click container → "Details" → "Log"
 
-# Docker CLI:
+**Container Manager:** Click container → "Details" → "Log"
+
+**Docker CLI:**
+```bash
 docker logs kometa-kempfplex1
 
 # Follow logs in real-time:
 docker logs -f kometa-kempfplex1
 
-# Or check the mounted log directory:
-cat /volume1/docker/kometa/kempfplex1/logs/meta.log
+# Check specific volume:
+docker volume inspect kometa-kempfplex1-logs
 ```
 
-### Common Issues:
+---
+
+## Common Issues
 
 **Issue: "Plex Error: Unauthorized"**
-- Check your `KOMETA_PLEXTOKEN` is correct
+- Check your `PLEX_TOKEN` in `.env` is correct
 - Ensure Plex URL is accessible from the container
+- Verify the Plex server is running
 
 **Issue: "Config file not found"**
-- Verify volume mount: `/config` should point to your config directory
+- Verify volume mount: `/config/config.yml` should point to your config file
 - Check file permissions
 
 **Issue: "TMDb API Error"**
-- Verify `KOMETA_TMDBKEY` is set correctly
+- Verify `TMDB_KEY` is set correctly in `.env`
 - Check TMDb API rate limits
 
 **Issue: Overlays not applying**
@@ -260,35 +257,30 @@ cat /volume1/docker/kometa/kempfplex1/logs/meta.log
 - Check `remove_overlays: false` in config.yml
 - Review logs for specific errors
 
-## Updating Configuration
+**Issue: Config changes not taking effect**
+- Ensure you pulled latest from GitHub: `git pull`
+- Restart containers after updating config
+- Check that config is mounted read-only to prevent local modifications
 
-### To update shared config.yml:
-1. Edit `config.yml` in your git repo
-2. Commit and push changes
-3. Pull changes on Synology: `git pull`
-4. Restart all containers to pick up changes
+---
 
-### To update per-server settings:
-1. Edit the specific `.env` file
-2. Restart that server's container:
-   ```bash
-   docker restart kometa-kempfplex1
-   ```
+## Why Use Docker Compose Instead?
 
-## Best Practices
+**Docker Compose provides:**
+- ✅ Single command to manage all servers (`docker-compose up -d`)
+- ✅ Auto-sync config from GitHub on startup
+- ✅ Easier to add/remove servers
+- ✅ Version controlled deployment configuration
+- ✅ Simpler troubleshooting
 
-1. **Keep config.yml in version control** - Track all changes via git
-2. **Never commit .env files** - They contain secrets
-3. **Use read-only mounts for shared config** - Prevents accidental modifications
-4. **Separate logs and cache per server** - Easier troubleshooting
-5. **Test on one server first** - Validate config before deploying to all servers
-6. **Schedule runs during off-hours** - 3-5 AM to avoid API rate limits
-7. **Monitor logs regularly** - Catch issues early
-8. **Backup your .env files** - Store securely outside the container
+See [DOCKER-COMPOSE.md](DOCKER-COMPOSE.md) for the recommended deployment method.
+
+---
 
 ## Security Notes
 
-- **Never expose Plex tokens in logs or screenshots**
-- **Use strong, unique tokens for Radarr/Sonarr**
-- **Restrict container network access if possible**
-- **Regularly update the Kometa image** for security patches
+- The `.env` file is **never committed to git** (in .gitignore)
+- Config is mounted **read-only** in containers
+- Each server's cache and logs are isolated
+- Plex tokens are kept in environment variables, not in config.yml
+- Never expose Plex tokens in logs or screenshots
