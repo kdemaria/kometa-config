@@ -8,7 +8,8 @@ Shared Kometa configuration for managing multiple Plex servers with consistent c
 
 ```bash
 # Clone repository
-cd /volume1/docker
+mkdir -p /volume1/docker/kometa
+cd /volume1/docker/kometa
 git clone https://github.com/kdemaria/kometa-config.git
 cd kometa-config
 

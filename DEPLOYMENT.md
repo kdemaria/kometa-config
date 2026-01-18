@@ -56,7 +56,7 @@ This configuration supports **multiple Plex servers** using a single shared `con
 
 1. **Clone repository on Synology:**
    ```bash
-   cd /volume1/docker
+   cd /volume1/docker/kometa
    git clone https://github.com/kdemaria/kometa-config.git
    ```
 
@@ -84,8 +84,8 @@ This configuration supports **multiple Plex servers** using a single shared `con
    **Volume Mounts:**
    | Container Path | Host Path | Mode |
    |----------------|-----------|------|
-   | `/config/config.yml` | `/volume1/docker/kometa-config/config.yml` | Read-only |
-   | `/config/.env` | `/volume1/docker/kometa-config/.env` | Read-only |
+   | `/config/config.yml` | `/volume1/docker/kometa/kometa-config/config.yml` | Read-only |
+   | `/config/.env` | `/volume1/docker/kometa/kometa-config/.env` | Read-only |
    | `/config/logs` | `/volume1/docker/kometa-logs/kempfplex1` | Read/Write |
    | `/config/cache` | `/volume1/docker/kometa-cache/kempfplex1` | Read/Write |
 
@@ -111,9 +111,9 @@ This configuration supports **multiple Plex servers** using a single shared `con
 docker run -d \
   --name kometa-kempfplex1 \
   --restart unless-stopped \
-  --env-file /volume1/docker/kometa-config/.env \
+  --env-file /volume1/docker/kometa/kometa-config/.env \
   -e KOMETA_PLEXURL=http://kempfplex1:32400 \
-  -v /volume1/docker/kometa-config/config.yml:/config/config.yml:ro \
+  -v /volume1/docker/kometa/kometa-config/config.yml:/config/config.yml:ro \
   -v kometa-kempfplex1-logs:/config/logs \
   -v kometa-kempfplex1-cache:/config/cache \
   kometateam/kometa:latest \
@@ -125,9 +125,9 @@ docker run -d \
 docker run -d \
   --name kometa-kempfnas2 \
   --restart unless-stopped \
-  --env-file /volume1/docker/kometa-config/.env \
+  --env-file /volume1/docker/kometa/kometa-config/.env \
   -e KOMETA_PLEXURL=http://kempfnas2:32400 \
-  -v /volume1/docker/kometa-config/config.yml:/config/config.yml:ro \
+  -v /volume1/docker/kometa/kometa-config/config.yml:/config/config.yml:ro \
   -v kometa-kempfnas2-logs:/config/logs \
   -v kometa-kempfnas2-cache:/config/cache \
   kometateam/kometa:latest \
@@ -139,9 +139,9 @@ docker run -d \
 docker run -d \
   --name kometa-demaria-dt \
   --restart unless-stopped \
-  --env-file /volume1/docker/kometa-config/.env \
+  --env-file /volume1/docker/kometa/kometa-config/.env \
   -e KOMETA_PLEXURL=http://demaria-dt:32400 \
-  -v /volume1/docker/kometa-config/config.yml:/config/config.yml:ro \
+  -v /volume1/docker/kometa/kometa-config/config.yml:/config/config.yml:ro \
   -v kometa-demaria-dt-logs:/config/logs \
   -v kometa-demaria-dt-cache:/config/cache \
   kometateam/kometa:latest \
@@ -217,7 +217,7 @@ Add to crontab:
 
 3. On Synology, pull changes:
    ```bash
-   cd /volume1/docker/kometa-config
+   cd /volume1/docker/kometa/kometa-config
    git pull
    ```
 
@@ -230,7 +230,7 @@ Add to crontab:
 
 1. Edit the `.env` file:
    ```bash
-   nano /volume1/docker/kometa-config/.env
+   nano /volume1/docker/kometa/kometa-config/.env
    ```
 
 2. Restart containers:

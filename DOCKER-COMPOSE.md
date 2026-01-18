@@ -58,13 +58,16 @@ Before starting, ensure your Synology NAS has:
 SSH into your Synology:
 
 ```bash
-# Navigate to your docker directory
-cd /volume1/docker
+# Create base kometa directory
+mkdir -p /volume1/docker/kometa
+
+# Navigate to the kometa directory
+cd /volume1/docker/kometa
 
 # Clone the repository
 git clone https://github.com/kdemaria/kometa-config.git
 
-# Navigate into the directory
+# Navigate into the repository
 cd kometa-config
 ```
 
@@ -255,7 +258,7 @@ environment:
 3. Schedule: Daily at 3:00 AM
 4. Script:
    ```bash
-   cd /volume1/docker/kometa-config
+   cd /volume1/docker/kometa/kometa-config
    docker-compose restart
    ```
 
@@ -354,7 +357,7 @@ If you get "git: command not found":
 
 2. **Restart containers to pull changes:**
    ```bash
-   cd /volume1/docker/kometa-config
+   cd /volume1/docker/kometa/kometa-config
    docker-compose down
    docker-compose up -d
    ```
@@ -376,13 +379,17 @@ If you get "git: command not found":
 ## File Structure
 
 ```
-/volume1/docker/kometa-config/
-├── .git/                          # Git repository
-├── .env                           # Your secrets (gitignored)
-├── config.yml                     # Shared Kometa config (from GitHub)
-├── docker-compose.yml             # Container definitions
-├── env.compose.example            # Example secrets file
-└── README.md                      # Documentation
+/volume1/docker/kometa/
+├── kometa-config/                 # Shared config repository
+│   ├── .git/                      # Git repository
+│   ├── .env                       # Your secrets (gitignored)
+│   ├── config.yml                 # Shared Kometa config (from GitHub)
+│   ├── docker-compose.yml         # Container definitions
+│   ├── env.compose.example        # Example secrets file
+│   └── README.md                  # Documentation
+├── kempfplex1/                    # (Optional) Server-specific files
+├── kempfnas2/                     # (Optional) Server-specific files
+└── demaria-dt/                    # (Optional) Server-specific files
 ```
 
 ---
