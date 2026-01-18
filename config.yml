@@ -109,7 +109,6 @@ libraries:                           # This is called out once within the config
 
     # Content-based Collections
     - default: genre                 # Drama, Comedy, Sci-Fi, etc.
-    - default: network               # NBC, ABC, CBS, FOX, HBO, etc.
 
     # Actor Collections with prettier styles
     - default: actor                 # Top TV actors
