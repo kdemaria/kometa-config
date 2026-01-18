@@ -2,27 +2,60 @@
 
 This guide covers deploying Kometa to multiple Plex servers using Docker Compose with a single shared config and secrets file.
 
+## Prerequisites
+
+Before starting, ensure your Synology NAS has:
+
+1. **Docker & Docker Compose installed:**
+   - Open Package Center
+   - Search for "Container Manager" (formerly Docker)
+   - Install Container Manager
+   - Docker Compose is included with Container Manager
+
+2. **Git installed:**
+   - Open Package Center
+   - Search for "Git Server"
+   - Install Git Server
+   - SSH into your Synology to verify: `git --version`
+
+3. **SSH access enabled:**
+   - Control Panel → Terminal & SNMP
+   - Enable SSH service (port 22)
+
+4. **Required API Keys:**
+   - **TMDb API key** (free) - https://www.themoviedb.org/settings/api
+   - **OMDb API key** (free) - http://www.omdbapi.com/apikey.aspx
+   - **Plex token** - See "Getting Your Plex Token" section below
+
+5. **Optional (if using):**
+   - Radarr token (Settings → General → Security → API Key)
+   - Sonarr token (Settings → General → Security → API Key)
+
+---
+
 ## Architecture
 
 **Single Config File:** `config.yml` - Shared across all servers (auto-updated from GitHub)
 
-**Single Secrets File:** `.env` - Contains all shared secrets + per-server Plex tokens
+**Single Secrets File:** `.env` - Contains all shared secrets (same Plex account)
 
 **Per-Service Configuration:** Only Plex URL differs (hardcoded in docker-compose.yml)
 
 ## Features
 
 ✅ **Auto-sync config from GitHub** - Pulls latest config.yml before containers start
-✅ **Single secrets file** - All API keys in one place
+✅ **Single secrets file** - All API keys in one place (shared Plex account)
 ✅ **Easy to add servers** - Just add a new service block
 ✅ **Isolated logs/cache** - Each server has its own Docker volume
 ✅ **Read-only config** - Prevents accidental modifications
+
+---
 
 ## Setup Instructions
 
 ### 1. Clone Repository on Synology
 
-SSH into your Synology and clone the repo:
+SSH into your Synology:
 
 ```bash
 # Navigate to your docker directory
@@ -44,14 +77,12 @@ cp env.compose.example .env
 nano .env
 ```
 
-Fill in:
-- `TMDB_KEY` - Your TMDb API key (shared)
-- `OMDB_KEY` - Your OMDb API key (shared)
-- `RADARR_TOKEN` - Your Radarr token (shared)
-- `SONARR_TOKEN` - Your Sonarr token (shared)
-- `PLEX_TOKEN_KEMPFPLEX1` - Plex token for kempfplex1
-- `PLEX_TOKEN_KEMPFNAS2` - Plex token for kempfnas2
-- `PLEX_TOKEN_DEMARIA_DT` - Plex token for DEMARIA-DT
+Fill in these values (all shared across servers):
+- `PLEX_TOKEN` - Your Plex token (same for all servers - same account)
+- `TMDB_KEY` - Your TMDb API key
+- `OMDB_KEY` - Your OMDb API key
+- `RADARR_TOKEN` - Your Radarr token (optional)
+- `SONARR_TOKEN` - Your Sonarr token (optional)
 
 **Important:** The `.env` file is gitignored and will never be committed.
 
@@ -88,6 +119,8 @@ You should see:
 - `kometa-kempfplex1` (running)
 - `kometa-kempfnas2` (running)
 - `kometa-demaria-dt` (running)
+
+---
 
 ## Common Operations
 
@@ -137,16 +170,13 @@ docker-compose pull
 docker-compose up -d
 ```
 
+---
+
 ## Adding a New Server
 
 To add a new Plex server:
 
-1. **Add Plex token to `.env` file:**
-   ```bash
-   PLEX_TOKEN_NEWSERVER=your_new_server_token_here
-   ```
-
-2. **Add service to `docker-compose.yml`:**
+1. **Add service to `docker-compose.yml`:**
    ```yaml
    kometa-newserver:
      image: kometateam/kometa:latest
@@ -157,7 +187,7 @@ To add a new Plex server:
      restart: unless-stopped
      environment:
        - KOMETA_PLEXURL=http://newserver:32400
-       - KOMETA_PLEXTOKEN=${PLEX_TOKEN_NEWSERVER}
+       - KOMETA_PLEXTOKEN=${PLEX_TOKEN}
        - KOMETA_TMDBKEY=${TMDB_KEY}
        - KOMETA_OMDBKEY=${OMDB_KEY}
        - KOMETA_RADARRTOKEN=${RADARR_TOKEN}
@@ -169,17 +199,39 @@ To add a new Plex server:
      command: --run --read-only-config
    ```
 
-3. **Add volumes:**
+2. **Add volumes:**
    ```yaml
    volumes:
      kometa-newserver-logs:
      kometa-newserver-cache:
    ```
 
-4. **Restart:**
+3. **Restart:**
    ```bash
    docker-compose up -d
    ```
+
+**Note:** No need to update `.env` - all servers share the same Plex token!
+
+---
+
+## Getting Your Plex Token
+
+**Method 1: Via Plex Web**
+1. Open Plex Web App
+2. Open any media item
+3. Click "Get Info" → "View XML"
+4. Look at the URL: `...?X-Plex-Token=YOURTOKEN`
+
+**Method 2: Via SSH** (if you have access to the Plex server)
+```bash
+cat "$(find ~/.config/Plex\ Media\ Server/Preferences.xml 2>/dev/null)" | grep -oP 'PlexOnlineToken="\K[^"]+'
+```
+
+**Method 3: Via Kometa Documentation**
+https://kometa.wiki/en/latest/config/plex/#getting-your-plex-token
+
+---
 
 ## Scheduling Runs
 
@@ -214,6 +266,8 @@ Add to crontab:
 0 3 * * * cd /volume1/docker/kometa-config && docker-compose restart
 ```
 
+---
+
 ## Accessing Logs and Cache
 
 Logs and cache are stored in Docker volumes. To access them:
@@ -233,6 +287,8 @@ docker volume inspect kometa-config_kometa-kempfplex1-logs
 docker run --rm -v kometa-config_kometa-kempfplex1-logs:/logs alpine ls -la /logs
 ```
 
+---
+
 ## Troubleshooting
 
 ### Config not updating from GitHub
@@ -244,6 +300,7 @@ docker-compose logs config-sync
 
 Manually pull:
 ```bash
+cd /volume1/docker/kometa-config
 git pull origin main
 ```
 
@@ -261,8 +318,9 @@ Common issues:
 
 ### "Plex Error: Unauthorized"
 
-- Verify `PLEX_TOKEN_*` in `.env` file is correct
+- Verify `PLEX_TOKEN` in `.env` file is correct
 - Ensure Plex server is accessible from the container
+- Check that all servers are on the same Plex account
 
 ### Changes to config.yml not taking effect
 
@@ -272,6 +330,16 @@ Common issues:
    docker-compose down
    docker-compose up -d
    ```
+
+### Git not installed on Synology
+
+If you get "git: command not found":
+1. Open Package Center
+2. Search for "Git Server"
+3. Install Git Server package
+4. Verify: `git --version`
+
+---
 
 ## Updating Configuration
 
@@ -286,6 +354,7 @@ Common issues:
 
 2. **Restart containers to pull changes:**
    ```bash
+   cd /volume1/docker/kometa-config
    docker-compose down
    docker-compose up -d
    ```
@@ -294,13 +363,15 @@ Common issues:
 
 1. **Edit `.env` file:**
    ```bash
-   nano .env
+   nano /volume1/docker/kometa-config/.env
    ```
 
 2. **Restart containers:**
    ```bash
    docker-compose restart
    ```
+
+---
 
 ## File Structure
 
@@ -314,17 +385,22 @@ Common issues:
 └── README.md                      # Documentation
 ```
 
+---
+
 ## Security Notes
 
 - The `.env` file is **never committed to git** (in .gitignore)
 - Config is mounted **read-only** in containers
 - Each server's cache and logs are isolated
 - Plex tokens are kept in environment variables, not in config.yml
+- All servers share the same Plex token (same account)
+
+---
 
 ## Benefits Over Individual Containers
 
 ✅ **Single command to manage all servers** - `docker-compose up -d`
-✅ **Shared secrets management** - One `.env` file instead of three
+✅ **Shared secrets management** - One `.env` file for everything
 ✅ **Auto-sync config from GitHub** - Always uses latest config
 ✅ **Easy to add/remove servers** - Edit docker-compose.yml
 ✅ **Consistent deployment** - All servers use identical setup

@@ -8,6 +8,28 @@ This document covers alternative deployment methods for advanced users.
 
 ---
 
+## Prerequisites
+
+Before starting, ensure you have:
+
+1. **Docker installed:**
+   - Synology: Install "Container Manager" from Package Center
+   - Other systems: https://docs.docker.com/get-docker/
+
+2. **Git installed:**
+   - Synology: Install "Git Server" from Package Center
+   - Linux: `sudo apt install git` or `sudo yum install git`
+
+3. **SSH access enabled** (for Synology):
+   - Control Panel → Terminal & SNMP → Enable SSH
+
+4. **Required API Keys:**
+   - TMDb API key (free) - https://www.themoviedb.org/settings/api
+   - OMDb API key (free) - http://www.omdbapi.com/apikey.aspx
+   - Plex token - See DOCKER-COMPOSE.md for how to get it
+
+---
+
 ## Architecture Overview
 
 This configuration supports **multiple Plex servers** using a single shared `config.yml` file.
