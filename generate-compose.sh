@@ -49,7 +49,23 @@ while IFS='|' read -r container_name plex_url display_name || [ -n "$container_n
   # Extract server name for volume names (remove kometa- prefix)
   server_name="${container_name#kometa-}"
 
-  cat >> docker-compose.yml << SERVICE
+  # Determine if this is the local server (kometa-kempfnas2) which needs host networking
+  if [ "$container_name" = "kometa-kempfnas2" ]; then
+    cat >> docker-compose.yml << SERVICE
+
+  # Kometa for ${display_name}
+  ${container_name}:
+    image: kometateam/kometa:latest
+    container_name: ${container_name}
+    depends_on:
+      config-sync:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    network_mode: host
+    environment:
+SERVICE
+  else
+    cat >> docker-compose.yml << SERVICE
 
   # Kometa for ${display_name}
   ${container_name}:
@@ -64,6 +80,10 @@ while IFS='|' read -r container_name plex_url display_name || [ -n "$container_n
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
+SERVICE
+  fi
+
+  cat >> docker-compose.yml << SERVICE_CONT
       # Server-specific Plex URL (only thing that differs per server)
       - KOMETA_PLEXURL=${plex_url}
 
@@ -81,7 +101,7 @@ while IFS='|' read -r container_name plex_url display_name || [ -n "$container_n
       - ${server_name}-logs:/config/logs
       - ${server_name}-cache:/config/cache
     command: --run --read-only-config
-SERVICE
+SERVICE_CONT
 
 done < servers.txt
 
