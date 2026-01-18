@@ -85,7 +85,6 @@ libraries:                           # This is called out once within the config
     - default: versions              # Extended Cut, Director's Cut, IMAX Enhanced
     - default: mediastinger          # After-credits scene indicator (great for Marvel/superhero)
   TV Shows:                                         # Must match a library name in your Plex
-    report_path: config/missing/TV_report.yml
     remove_overlays: false                          # Set to true if you want to remove overlays
     # reapply_overlays: true                         # If you are doing a lot of testing and changes like me, keep this to true to always reapply overlays
     reset_overlays: tmdb                            # if you want to reset the poster to default poster from tmdb

@@ -3,12 +3,13 @@ version: '3.8'
 services:
   # Config sync service - pulls latest config from GitHub before other services start
   config-sync:
-    image: alpine/git
+    image: alpine:latest
     container_name: kometa-config-sync
     volumes:
       - ./:/git
     command: >
       sh -c "
+        apk add --no-cache git &&
         cd /git &&
         git config --global --add safe.directory /git &&
         git pull origin main || echo 'Git pull failed or no changes'
@@ -26,7 +27,7 @@ services:
     restart: unless-stopped
     environment:
       # Server-specific Plex URL (only thing that differs per server)
-      - KOMETA_PLEXURL=http://kempfnas2:32400
+      - KOMETA_PLEXURL=http://10.100.103.17:32400
 
       # All other secrets are shared (from .env file)
       - KOMETA_PLEXTOKEN=${PLEX_TOKEN}
