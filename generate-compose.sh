@@ -59,6 +59,8 @@ while IFS='|' read -r container_name plex_url display_name || [ -n "$container_n
       config-sync:
         condition: service_completed_successfully
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       # Server-specific Plex URL (only thing that differs per server)
       - KOMETA_PLEXURL=${plex_url}
