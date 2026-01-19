@@ -36,13 +36,8 @@ libraries:                           # This is called out once within the config
         data:
           starting: current_year-10  # Last 10 years
 
-    # Seasonal & Holiday Collections
-    - default: seasonal              # Christmas, Halloween, Valentine's Day, etc.
-
     # Content-based Collections
     - default: genre                 # Action, Comedy, Drama, etc.
-    - default: franchises            # Star Wars, MCU, Fast & Furious, Divergent, Allegiant, etc.
-    - default: universes             # Marvel Cinematic Universe, DC Extended Universe
 
     # Actor/Director Collections with prettier styles
     - default: actor                 # Top actors in your library
@@ -104,9 +99,6 @@ libraries:                           # This is called out once within the config
         data:
           starting: current_year-10
 
-    # Seasonal & Holiday Collections
-    - default: seasonal              # Christmas specials, Halloween episodes
-
     # Content-based Collections
     - default: genre                 # Drama, Comedy, Sci-Fi, etc.
 
@@ -128,9 +120,6 @@ libraries:                           # This is called out once within the config
 
     # Content Rating Collections (US-focused)
     - default: content_rating_us     # TV-Y, TV-PG, TV-14, TV-MA
-
-    # Show Status Collections
-    - default: status                # Airing, Returning, Canceled, Ended
 
     ## Overlay Files - Visual badges on posters
     overlay_files:
@@ -263,9 +252,6 @@ playlist_files:
 - default: playlist                  # This is a file within Kometa's defaults folder
   template_variables:
     libraries: Movies, TV Shows      # list of libraries that you want the Kometa Defaults playlists to look at
-- default: playlist_franchise        # Timeline Order playlists for franchises (Star Wars, MCU, etc.)
-  template_variables:
-    libraries: Movies, TV Shows      # Combine movies and TV shows in timeline order
   # see the wiki for how to use local files, folders, URLs, or files from git
 settings:
   run_order:
@@ -365,7 +351,6 @@ radarr:                              # Can be individually specified per library
   radarr_path:
   plex_path:
   ignore_cache: false
-  root_folder_path:
 sonarr:                              # Can be individually specified per library as well
   url: http://10.100.103.17:8989
   token: <<sonarrtoken>>
@@ -408,4 +393,3 @@ sonarr:                              # Can be individually specified per library
 #     expires_in:
 #     refresh_token:
 #     token_type:
-  root_folder_path:
