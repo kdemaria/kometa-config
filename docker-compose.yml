@@ -43,6 +43,15 @@ services:
       # Server-specific writable directories
       - kempfnas2-logs:/config/logs
       - kempfnas2-cache:/config/cache
+
+      # Shared metadata directory (for assets, custom metadata, etc.)
+      - /volume1/demaria_ops/metadata:/config/metadata
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
     command: --run --read-only-config
 
   # Kometa for kempfplex1
@@ -74,6 +83,15 @@ services:
       # Server-specific writable directories
       - kempfplex1-logs:/config/logs
       - kempfplex1-cache:/config/cache
+
+      # Shared metadata directory (for assets, custom metadata, etc.)
+      - /volume1/demaria_ops/metadata:/config/metadata
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
     command: --run --read-only-config
 
   # Kometa for DEMARIA-DT
@@ -105,6 +123,15 @@ services:
       # Server-specific writable directories
       - demaria-dt-logs:/config/logs
       - demaria-dt-cache:/config/cache
+
+      # Shared metadata directory (for assets, custom metadata, etc.)
+      - /volume1/demaria_ops/metadata:/config/metadata
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
     command: --run --read-only-config
 
 # Named volumes for logs and cache (persists between container restarts)
