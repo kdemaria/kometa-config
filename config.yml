@@ -134,9 +134,9 @@ libraries:                           # This is called out once within the config
     - default: audio_codec           # Dolby Atmos, DTS-X
     - default: versions              # Extended episodes, Director's Cut
     - default: mediastinger          # Post-credits scenes
-    - default: episode_info          # Season/Episode info overlays
+    - default: episode_info          # Season info overlays
       template_variables:
-        overlay_level: episode       # Apply to episodes
+        overlay_level: season        # Apply to seasons only (not episodes)
 # see the wiki for how to use local files, folders, URLs, or files from git
 #     template_variables:
 #       sep_style: gray                               # use the gray separators globally for this library
