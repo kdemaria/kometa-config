@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Config sync service - pulls latest config from GitHub before other services start
+  # Config sync service - pulls latest config from GitHub and stays running as controller
   config-sync:
     image: alpine:latest
     container_name: kometa-config-sync
@@ -12,7 +12,9 @@ services:
         apk add --no-cache git &&
         cd /git &&
         git config --global --add safe.directory /git &&
-        git pull origin main || echo 'Git pull failed or no changes'
+        git pull origin main || echo 'Git pull failed or no changes' &&
+        echo 'Config sync complete - container will stay running' &&
+        tail -f /dev/null
       "
     restart: "no"
 
@@ -23,7 +25,7 @@ services:
     container_name: kometa-kempfnas2
     depends_on:
       config-sync:
-        condition: service_completed_successfully
+        condition: service_started
     restart: "no"
     network_mode: host
     environment:
@@ -60,6 +62,8 @@ services:
     container_name: kometa-kempfplex1
     depends_on:
       config-sync:
+        condition: service_started
+      kometa-kempfnas2:
         condition: service_completed_successfully
     restart: "no"
     dns:
@@ -100,6 +104,8 @@ services:
     container_name: kometa-demaria-dt
     depends_on:
       config-sync:
+        condition: service_started
+      kometa-kempfplex1:
         condition: service_completed_successfully
     restart: "no"
     dns:
