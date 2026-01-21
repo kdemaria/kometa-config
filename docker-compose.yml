@@ -24,7 +24,7 @@ services:
     depends_on:
       config-sync:
         condition: service_completed_successfully
-    restart: unless-stopped
+    restart: "no"
     network_mode: host
     environment:
       # Server-specific Plex URL (only thing that differs per server)
@@ -61,7 +61,7 @@ services:
     depends_on:
       config-sync:
         condition: service_completed_successfully
-    restart: unless-stopped
+    restart: "no"
     dns:
       - 10.100.103.1
     extra_hosts:
@@ -101,7 +101,7 @@ services:
     depends_on:
       config-sync:
         condition: service_completed_successfully
-    restart: unless-stopped
+    restart: "no"
     dns:
       - 10.100.103.1
     extra_hosts:
